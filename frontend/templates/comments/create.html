@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block header %}Добавление комментария{% endblock %}
+
+{% block actions %}
+    <a href="{{ url_for('comments_list') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Назад
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <i class="bi bi-chat-quote"></i> Новый комментарий
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">ID заявки <span class="text-danger">*</span></label>
+                        <input type="number" name="request_id" class="form-control" required
+                               placeholder="Введите номер заявки">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">ID специалиста <span class="text-danger">*</span></label>
+                        <input type="number" name="master_id" class="form-control" required
+                               placeholder="Введите ваш ID как специалиста">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Сообщение <span class="text-danger">*</span></label>
+                        <textarea name="message" class="form-control" rows="5" required
+                                  placeholder="Опишите ход работы, проблемы, рекомендации..."
+                                  minlength="10" maxlength="500"></textarea>
+                        <div class="form-text">
+                            Минимум 10 символов, максимум 500. Указывайте важные детали.
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Комментарии видны всем пользователям системы. 
+                        Будьте внимательны при указании конфиденциальной информации.
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-info">
+                            <i class="bi bi-send-check"></i> Отправить комментарий
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Очистить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

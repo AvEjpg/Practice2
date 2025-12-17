@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block header %}Управление пользователями{% endblock %}
+
+{% block actions %}
+    {% if role == 'Менеджер' %}
+    <a href="{{ url_for('create_user') }}" class="btn btn-primary">
+        <i class="bi bi-person-plus"></i> Новый пользователь
+    </a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-people"></i> Пользователи системы</span>
+                <span class="badge bg-primary">{{ users|length }} пользователей</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>ФИО</th>
+                                <th>Телефон</th>
+                                <th>Логин</th>
+                                <th>Роль</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in users %}
+                            <tr>
+                                <td><strong>#{{ u.user_id }}</strong></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar me-2">{{ u.fio[0] if u.fio else '?' }}</div>
+                                        {{ u.fio }}
+                                    </div>
+                                </td>
+                                <td>{{ u.phone }}</td>
+                                <td>{{ u.login }}</td>
+                                <td>
+                                    {% if u.user_type == 'Менеджер' %}
+                                    <span class="badge bg-primary">{{ u.user_type }}</span>
+                                    {% elif u.user_type == 'Менеджер по качесту' %}
+                                    <span class="badge bg-info">{{ u.user_type }}</span>
+                                    {% elif u.user_type == 'Специалист' %}
+                                    <span class="badge bg-warning">{{ u.user_type }}</span>
+                                    {% elif u.user_type == 'Оператор' %}
+                                    <span class="badge bg-success">{{ u.user_type }}</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ u.user_type }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if role == 'Менеджер' %}
+                                    <form method="post" action="{{ url_for('delete_user', user_id=u.user_id) }}"
+                                          onsubmit="return confirm('Удалить пользователя {{ u.fio }}?')"
+                                          class="d-inline">
+                                        <input type="hidden" name="confirm" value="yes">
+                                        <button type="submit" class="btn btn-danger btn-sm" 
+                                                title="Удалить">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <span class="text-muted">Только для менеджера</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <i class="bi bi-people display-4 text-muted"></i>
+                                    <p class="mt-2 text-muted">Пользователи не найдены</p>
+                                    {% if role == 'Менеджер' %}
+                                    <a href="{{ url_for('create_user') }}" class="btn btn-primary mt-2">
+                                        <i class="bi bi-person-plus"></i> Добавить первого пользователя
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if role == 'Менеджер' %}
+    <div class="col-md-4">
+        <!-- Статистика пользователей -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <i class="bi bi-graph-up"></i> Статистика
+            </div>
+            <div class="card-body">
+                {% set roles = {} %}
+                {% for u in users %}
+                    {% set _ = roles.update({u.user_type: roles.get(u.user_type, 0) + 1}) %}
+                {% endfor %}
+                
+                {% for role_name, count in roles.items() %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span>{{ role_name }}</span>
+                    <span class="badge bg-primary">{{ count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Быстрое добавление -->
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <i class="bi bi-person-add"></i> Быстрое добавление
+            </div>
+            <div class="card-body">
+                <a href="{{ url_for('create_user') }}" class="btn btn-success w-100 mb-2">
+                    <i class="bi bi-person-plus"></i> Новый пользователь
+                </a>
+                <small class="text-muted">
+                    Только менеджеры могут добавлять и удалять пользователей системы.
+                </small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

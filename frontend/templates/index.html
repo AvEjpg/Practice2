@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Главная - Система учета заявок{% endblock %}
+
+{% block header %}
+    <span>Добро пожаловать в систему учета заявок</span>
+    {% if role %}
+        <span class="badge bg-primary role-badge">{{ role }}</span>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-speedometer2"></i> Панель управления
+            </div>
+            <div class="card-body">
+                {% if role %}
+                <h5 class="card-title">Приветствуем, {{ role }}!</h5>
+                
+                {% if role == 'Заказчик' %}
+                <p class="card-text">
+                    Вы вошли в систему учета заявок на ремонт климатического оборудования. 
+                    Здесь вы можете создавать новые заявки и отслеживать статус существующих.
+                </p>
+                {% else %}
+                <p class="card-text">
+                    Вы вошли в систему учета заявок на ремонт климатического оборудования. 
+                    Используйте меню навигации для работы с заявками, пользователями и статистикой.
+                </p>
+                {% endif %}
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card stat-card primary">
+                            <h3>{{ stats.count.total_requests if stats and stats.count else '0' }}</h3>
+                            <p>
+                                {% if role == 'Заказчик' %}
+                                Моих заявок
+                                {% else %}
+                                Всего заявок
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card stat-card success">
+                            <h3>{{ stats.count.completed_requests if stats and stats.count else '0' }}</h3>
+                            <p>
+                                {% if role == 'Заказчик' %}
+                                Выполнено моих заявок
+                                {% else %}
+                                Выполнено заявок
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                {% else %}
+                <h5 class="card-title">Добро пожаловать!</h5>
+                <p class="card-text">
+                    Для работы с системой учета заявок на ремонт климатического оборудования 
+                    необходимо войти в систему. Пожалуйста, авторизуйтесь.
+                </p>
+                <a href="{{ url_for('login') }}" class="btn btn-primary">
+                    <i class="bi bi-box-arrow-in-right"></i> Войти в систему
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <i class="bi bi-qr-code-scan"></i> QR-код для обратной связи
+            </div>
+            <div class="card-body text-center">
+                <p>Оцените качество наших услуг:</p>
+                {% if role %}
+                <img src="{{ url_for('qr_feedback') }}" alt="QR Code" class="img-fluid rounded" style="max-width: 200px;">
+                <p class="mt-2 text-muted">
+                    <small>Отсканируйте для перехода к опросу</small>
+                </p>
+                {% else %}
+                <p class="text-muted">Доступно после входа в систему</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-warning text-dark">
+                <i class="bi bi-lightning-charge"></i> Быстрые действия
+            </div>
+            <div class="card-body">
+                {% if role %}
+                <div class="d-grid gap-2">
+                    {% if role == 'Заказчик' %}
+                    <a href="{{ url_for('new_my_request') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Новая заявка
+                    </a>
+                    <a href="{{ url_for('my_requests') }}" class="btn btn-success">
+                        <i class="bi bi-list-check me-1"></i> Мои заявки
+                    </a>
+                    {% else %}
+                        {% if role in ['Оператор', 'Специалист', 'Менеджер'] %}
+                        <a href="{{ url_for('new_request') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-1"></i> Создать заявку
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('requests_list') }}" class="btn btn-success">
+                            <i class="bi bi-list-check me-1"></i> Все заявки
+                        </a>
+                    {% endif %}
+                    {% if role != 'Заказчик' %}
+                    <a href="{{ url_for('statistics') }}" class="btn btn-info">
+                        <i class="bi bi-graph-up me-1"></i> Статистика
+                    </a>
+                    {% endif %}
+                </div>
+                {% else %}
+                <p class="text-center text-muted">
+                    <i class="bi bi-lock display-6 mb-3"></i><br>
+                    Доступно после авторизации
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if stats and role != 'Заказчик' %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-pie-chart"></i> Статистика по типам оборудования
+            </div>
+            <div class="card-body">
+                {% if stats.by_tech %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Тип оборудования</th>
+                                <th>Количество заявок</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in stats.by_tech %}
+                            <tr>
+                                <td>{{ item.tech_type }}</td>
+                                <td>
+                                    <span class="badge bg-primary">{{ item.count }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center text-muted">Нет данных</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-clock-history"></i> Время выполнения
+            </div>
+            <div class="card-body">
+                {% if stats.avg.avg_repair_days and stats.avg.avg_repair_days > 0 %}
+                <div class="text-center">
+                    <h1 class="display-4">{{ "%.1f"|format(stats.avg.avg_repair_days) }}</h1>
+                    <p class="text-muted">среднее время выполнения (дней)</p>
+                </div>
+                {% else %}
+                <p class="text-center text-muted">Нет данных для расчета</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if role == 'Заказчик' %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <i class="bi bi-info-circle"></i> Информация для заказчика
+            </div>
+            <div class="card-body">
+                <h5>Как работает система:</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul>
+                            <li>Создайте заявку на ремонт оборудования</li>
+                            <li>Отслеживайте статус заявки в разделе "Мои заявки"</li>
+                            <li>Специалисты будут оставлять комментарии по ходу работы</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul>
+                            <li>При необходимости с вами свяжутся для уточнения деталей</li>
+                            <li>После завершения ремонта статус заявки изменится</li>
+                            <li>Вы можете оставить отзыв через QR-код</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

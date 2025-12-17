@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block header %}Авторизация в системе{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-primary text-white text-center py-4">
+                <i class="bi bi-shield-lock display-4"></i>
+                <h3 class="mt-3 mb-0">Вход в систему</h3>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Логин</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-person text-primary"></i>
+                            </span>
+                            <input type="text" name="login" class="form-control" required
+                                   placeholder="Введите ваш логин">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Пароль</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-key text-primary"></i>
+                            </span>
+                            <input type="password" name="password" class="form-control" required
+                                   placeholder="Введите ваш пароль">
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg py-3">
+                            <i class="bi bi-box-arrow-in-right me-2"></i> Войти в систему
+                        </button>
+                    </div>
+                </form>
+                
+                <hr class="my-4">
+                
+                <div class="text-center">
+                    <p class="text-muted mb-3">Тестовые доступы для демонстрации:</p>
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <div class="card border-primary">
+                                <div class="card-body py-3">
+                                    <small>
+                                        <strong>Менеджер</strong><br>
+                                        Логин: <code>login1</code><br>
+                                        Пароль: <code>pass1</code>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="card border-success">
+                                <div class="card-body py-3">
+                                    <small>
+                                        <strong>Специалист</strong><br>
+                                        Логин: <code>login2</code><br>
+                                        Пароль: <code>pass2</code>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="card border-info">
+                                <div class="card-body py-3">
+                                    <small>
+                                        <strong>Оператор</strong><br>
+                                        Логин: <code>login4</code><br>
+                                        Пароль: <code>pass4</code>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-center bg-light py-3">
+                <small class="text-muted">
+                    Система учета заявок на ремонт климатического оборудования<br>
+                    ООО "Конди" © 2024
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

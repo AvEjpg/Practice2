@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block header %}
+    <div class="d-flex align-items-center">
+        Заявка #{{ r.request_id }}
+        <span class="badge ms-2 
+            {% if r.request_status == 'Новая заявка' %}status-new
+            {% elif r.request_status == 'В процессе ремонта' %}status-in-progress
+            {% elif r.request_status == 'Готова к выдаче' %}status-gotova
+            {% elif r.request_status == 'Завершена' %}status-completed
+            {% elif r.request_status == 'Отменена' %}status-otmenena
+            {% else %}status-pending{% endif %}">
+            {{ r.request_status }}
+        </span>
+    </div>
+{% endblock %}
+
+{% block actions %}
+    <a href="{{ url_for('requests_list') }}" class="btn btn-outline-light">
+        <i class="bi bi-arrow-left me-1"></i> Назад к списку
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Основная информация -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-info-circle"></i> Информация о заявке
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6><i class="bi bi-calendar text-primary me-2"></i>Даты</h6>
+                        <p class="mb-1">
+                            <strong>Создана:</strong> {{ r.start_date }}
+                        </p>
+                        <p class="mb-0">
+                            <strong>Завершена:</strong> {{ r.completion_date or 'В процессе' }}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6><i class="bi bi-tools text-primary me-2"></i>Оборудование</h6>
+                        <p class="mb-1">
+                            <strong>Тип:</strong> {{ r.climate_tech_type }}
+                        </p>
+                        <p class="mb-0">
+                            <strong>Модель:</strong> {{ r.climate_tech_model }}
+                        </p>
+                    </div>
+                </div>
+                
+                <h6><i class="bi bi-chat-text text-primary me-2"></i>Описание проблемы</h6>
+                <div class="alert alert-light border rounded-3 p-3">
+                    {{ r.problem_description }}
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6><i class="bi bi-person text-primary me-2"></i>Ответственные</h6>
+                        <p class="mb-1">
+                            <strong>Клиент ID:</strong> #{{ r.client_id }}
+                        </p>
+                        <p class="mb-0">
+                            <strong>Специалист ID:</strong> {{ r.master_id or 'Не назначен' }}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6><i class="bi bi-box-seam text-primary me-2"></i>Комплектующие</h6>
+                        <p>{{ r.repair_parts or 'Не указаны' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Комментарии -->
+        <div class="card">
+            <div class="card-header bg-light">
+                <i class="bi bi-chat-dots"></i> Комментарии ({{ comments|length }})
+            </div>
+            <div class="card-body">
+                {% if comments %}
+                    {% for comment in comments %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong class="text-primary">
+                                <i class="bi bi-person-circle me-1"></i>Специалист #{{ comment.master_id }}
+                            </strong>
+                            <small class="text-muted">ID комментария: {{ comment.comment_id }}</small>
+                        </div>
+                        <p class="mb-0 ps-3 border-start border-3 border-primary ps-3">{{ comment.message }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-chat-text display-6 text-muted mb-3"></i>
+                        <p class="text-muted">Комментариев пока нет</p>
+                    </div>
+                {% endif %}
+                
+                {% if role in ['Специалист', 'Менеджер', 'Менеджер по качеству'] %}
+                <div class="mt-4">
+                    <a href="{{ url_for('new_comment') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Добавить комментарий
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Действия -->
+    <div class="col-md-4">
+        <!-- Редактирование заявки -->
+        <div class="card mb-4" id="edit">
+            <div class="card-header bg-warning text-dark">
+                <i class="bi bi-pencil"></i> Редактировать заявку
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('edit_request', request_id=r.request_id) }}">
+                    <div class="mb-3">
+                        <label class="form-label">Статус</label>
+                        <select name="request_status" class="form-select">
+                            <option value="Новая заявка" {% if r.request_status == 'Новая заявка' %}selected{% endif %}>Новая заявка</option>
+                            <option value="В процессе ремонта" {% if r.request_status == 'В процессе ремонта' %}selected{% endif %}>В процессе ремонта</option>
+                            <option value="Готова к выдаче" {% if r.request_status == 'Готова к выдаче' %}selected{% endif %}>Готова к выдаче</option>
+                            <option value="Завершена" {% if r.request_status == 'Завершена' %}selected{% endif %}>Завершена</option>
+                            <option value="Отменена" {% if r.request_status == 'Отменена' %}selected{% endif %}>Отменена</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Дата завершения</label>
+                        <input type="date" name="completion_date" class="form-control" 
+                               value="{{ r.completion_date }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Комплектующие</label>
+                        <textarea name="repair_parts" class="form-control" rows="3">{{ r.repair_parts or '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">ID специалиста</label>
+                        <input type="number" name="master_id" class="form-control" 
+                               value="{{ r.master_id or '' }}">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-warning w-100">
+                        <i class="bi bi-save me-1"></i> Сохранить изменения
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        {% if role in ['Менеджер', 'Менеджер по качеству'] %}
+        <!-- Назначение специалиста -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <i class="bi bi-person-plus"></i> Назначить специалиста
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('assign_specialist', request_id=r.request_id) }}">
+                    <div class="mb-3">
+                        <label class="form-label">ID специалиста</label>
+                        <input type="number" name="master_id" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-info w-100">
+                        <i class="bi bi-check-circle me-1"></i> Назначить
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Продление срока -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <i class="bi bi-calendar-plus"></i> Продлить срок
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('extend_deadline', request_id=r.request_id) }}">
+                    <div class="mb-3">
+                        <label class="form-label">Новая дата завершения</label>
+                        <input type="date" name="new_completion_date" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Причина продления</label>
+                        <textarea name="reason" class="form-control" rows="2" placeholder="Укажите причину продления срока..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-secondary w-100">
+                        <i class="bi bi-clock-history me-1"></i> Продлить срок
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if role == 'Менеджер' %}
+        <!-- Удаление -->
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <i class="bi bi-trash"></i> Опасная зона
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger border-danger mb-3">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <small>
+                        Удаление заявки невозможно отменить. Все связанные данные будут удалены.
+                    </small>
+                </div>
+                <form method="post" action="{{ url_for('delete_request', request_id=r.request_id) }}"
+                      onsubmit="return confirm('Вы уверены, что хотите удалить заявку #{{ r.request_id }}?')">
+                    <input type="hidden" name="confirm" value="yes">
+                    <button type="submit" class="btn btn-danger w-100">
+                        <i class="bi bi-trash me-1"></i> Удалить заявку
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

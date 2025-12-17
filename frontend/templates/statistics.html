@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block header %}Статистика и аналитика{% endblock %}
+
+{% block content %}
+{% if role == 'Заказчик' %}
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle"></i>
+    Страница статистики доступна только сотрудникам сервисного центра.
+</div>
+{% else %}
+<div class="row">
+    <!-- Основные метрики -->
+    <div class="col-md-3 mb-4">
+        <div class="card stat-card primary">
+            <div class="card-body">
+                <h1 class="display-4">{{ stats.count.total_requests if stats.count else '0' }}</h1>
+                <p class="mb-0">Всего заявок</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card stat-card success">
+            <div class="card-body">
+                <h1 class="display-4">{{ stats.count.completed_requests if stats.count else '0' }}</h1>
+                <p class="mb-0">Выполнено</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card stat-card info">
+            <div class="card-body">
+                <h1 class="display-4">
+                    {{ "%.1f"|format(stats.avg_time.avg_repair_days) if stats.avg_time and stats.avg_time.avg_repair_days else '0' }}
+                </h1>
+                <p class="mb-0">Ср. время (дней)</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card stat-card warning">
+            <div class="card-body">
+                {% if stats.count and stats.count.total_requests|int > 0 %}
+                    {% set percentage = (stats.count.completed_requests|int / stats.count.total_requests|int * 100)|round(1) %}
+                {% else %}
+                    {% set percentage = 0 %}
+                {% endif %}
+                <h1 class="display-4">{{ percentage }}%</h1>
+                <p class="mb-0">Выполнено</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Статистика по типам оборудования -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-pie-chart"></i> Распределение по типам оборудования
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Тип оборудования</th>
+                                <th>Количество</th>
+                                <th>Доля</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if stats.by_tech %}
+                                {% set total = stats.by_tech|sum(attribute='count') %}
+                                {% for item in stats.by_tech %}
+                                <tr>
+                                    <td>{{ item.tech_type }}</td>
+                                    <td>{{ item.count }}</td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            {% set width = (item.count / total * 100) if total > 0 else 0 %}
+                                            <div class="progress-bar" style="width: {{ width }}%">
+                                                {{ "%.1f"|format(width) }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">Нет данных</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Статистика по типам проблем -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-bar-chart"></i> Частота типов проблем
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Тип проблемы</th>
+                                <th>Количество</th>
+                                <th>Процент</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if stats.by_problem %}
+                                {% set total = stats.by_problem|sum(attribute='count') %}
+                                {% for item in stats.by_problem[:10] %}
+                                <tr>
+                                    <td>
+                                        <div class="text-truncate" style="max-width: 150px;" 
+                                             title="{{ item.problem }}">
+                                            {{ item.problem }}
+                                        </div>
+                                    </td>
+                                    <td>{{ item.count }}</td>
+                                    <td>
+                                        {% if total > 0 %}
+                                            {{ "%.1f"|format(item.count / total * 100) }}%
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% if stats.by_problem|length > 10 %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">
+                                        ... и еще {{ stats.by_problem|length - 10 }} записей
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">Нет данных</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Время выполнения -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-clock-history"></i> Анализ времени выполнения
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Среднее время выполнения заявок:</h5>
+                        {% if stats.avg_time and stats.avg_time.avg_repair_days %}
+                            <div class="display-4 text-primary">
+                                {{ "%.1f"|format(stats.avg_time.avg_repair_days) }} дней
+                            </div>
+                            <p class="text-muted">
+                                Рассчитывается на основе {{ stats.avg_time.count_completed if stats.avg_time else 0 }} завершенных заявок
+                            </p>
+                        {% else %}
+                            <p class="text-muted">Недостаточно данных для расчета</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Эффективность работы:</h5>
+                        <div class="alert alert-info">
+                            <i class="bi bi-lightbulb"></i>
+                            Для повышения эффективности рекомендуется:
+                            <ul class="mt-2">
+                                <li>Сократить время ожидания комплектующих</li>
+                                <li>Оптимизировать распределение заявок между специалистами</li>
+                                <li>Внедрить систему приоритетов для срочных заявок</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

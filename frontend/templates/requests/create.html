@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block header %}Создание новой заявки{% endblock %}
+
+{% block actions %}
+    <a href="{{ url_for('requests_list') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Назад
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <i class="bi bi-plus-circle"></i> Новая заявка на ремонт
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Дата начала <span class="text-danger">*</span></label>
+                            <input type="date" name="start_date" class="form-control" required 
+                                   value="{{ now }}">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Тип оборудования <span class="text-danger">*</span></label>
+                            <select name="climate_tech_type" class="form-select" required>
+                                <option value="">Выберите тип...</option>
+                                <option value="Кондиционер">Кондиционер</option>
+                                <option value="Вентиляция">Вентиляционная система</option>
+                                <option value="Отопление">Отопительная система</option>
+                                <option value="Увлажнитель">Увлажнитель воздуха</option>
+                                <option value="Очиститель">Очиститель воздуха</option>
+                                <option value="Тепловая завеса">Тепловая завеса</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Модель устройства <span class="text-danger">*</span></label>
+                        <input type="text" name="climate_tech_model" class="form-control" required 
+                               placeholder="Например: Samsung AR9500M">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Описание проблемы <span class="text-danger">*</span></label>
+                        <textarea name="problem_description" class="form-control" rows="4" required
+                                  placeholder="Опишите подробно проблему с оборудованием..."
+                                  minlength="10" maxlength="500"></textarea>
+                        <div class="form-text">
+                            Минимум 10 символов, максимум 500. Будьте как можно подробнее.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">ID клиента <span class="text-danger">*</span></label>
+                        <input type="number" name="client_id" class="form-control" required
+                               placeholder="Введите идентификатор клиента">
+                        <div class="form-text">
+                            Уникальный номер клиента в системе
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        Статус заявки будет автоматически установлен как "Новая". 
+                        Специалист может быть назначен позже менеджером.
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Создать заявку
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Очистить форму
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Установка сегодняшней даты по умолчанию
+        const today = new Date().toISOString().split('T')[0];
+        document.querySelector('input[name="start_date"]').value = today;
+    });
+</script>
+{% endblock %}

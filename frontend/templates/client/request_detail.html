@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block header %}
+    <div class="d-flex align-items-center">
+        Моя заявка #{{ r.request_id }}
+        <span class="badge ms-2 
+            {% if r.request_status == 'Новая заявка' %}status-new
+            {% elif r.request_status == 'В процессе ремонта' %}status-in-progress
+            {% elif r.request_status == 'Готова к выдаче' %}status-gotova
+            {% elif r.request_status == 'Завершена' %}status-completed
+            {% elif r.request_status == 'Отменена' %}status-otmenena
+            {% else %}status-pending{% endif %}">
+            {{ r.request_status }}
+        </span>
+    </div>
+{% endblock %}
+
+{% block actions %}
+    <a href="{{ url_for('my_requests') }}" class="btn btn-outline-light">
+        <i class="bi bi-arrow-left me-1"></i> Назад к моим заявкам
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Основная информация -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-info-circle"></i> Информация о заявке
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6><i class="bi bi-calendar text-primary me-2"></i>Даты</h6>
+                        <p class="mb-1">
+                            <strong>Дата создания:</strong> {{ r.start_date }}
+                        </p>
+                        <p class="mb-0">
+                            <strong>Дата завершения:</strong> {{ r.completion_date or 'В процессе' }}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6><i class="bi bi-tools text-primary me-2"></i>Оборудование</h6>
+                        <p class="mb-1">
+                            <strong>Тип:</strong> {{ r.climate_tech_type }}
+                        </p>
+                        <p class="mb-0">
+                            <strong>Модель:</strong> {{ r.climate_tech_model }}
+                        </p>
+                    </div>
+                </div>
+                
+                <h6><i class="bi bi-chat-text text-primary me-2"></i>Описание проблемы</h6>
+                <div class="alert alert-light border rounded-3 p-3">
+                    {{ r.problem_description }}
+                </div>
+                
+                {% if r.repair_parts %}
+                <h6><i class="bi bi-box-seam text-primary me-2"></i>Заменённые комплектующие</h6>
+                <div class="alert alert-info border rounded-3 p-3">
+                    {{ r.repair_parts }}
+                </div>
+                {% endif %}
+                
+                {% if r.master_id %}
+                <h6><i class="bi bi-person text-primary me-2"></i>Ответственный специалист</h6>
+                <p class="mb-0">ID специалиста: #{{ r.master_id }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Комментарии -->
+        <div class="card">
+            <div class="card-header bg-light">
+                <i class="bi bi-chat-dots"></i> Комментарии специалистов ({{ comments|length }})
+            </div>
+            <div class="card-body">
+                {% if comments %}
+                    {% for comment in comments %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong class="text-primary">
+                                <i class="bi bi-person-circle me-1"></i>Специалист #{{ comment.master_id }}
+                            </strong>
+                            <small class="text-muted">{{ comment.comment_id }}</small>
+                        </div>
+                        <p class="mb-0 ps-3 border-start border-3 border-primary ps-3">{{ comment.message }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-chat-text display-6 text-muted mb-3"></i>
+                        <p class="text-muted">Комментариев пока нет. Специалист добавит их в процессе работы.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Информация для клиента -->
+    <div class="col-md-4">
+        <!-- Статус заявки -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <i class="bi bi-info-square"></i> Статус заявки
+            </div>
+            <div class="card-body">
+                <div class="status-timeline">
+                    {% set statuses = ['Новая заявка', 'В процессе ремонта', 'Готова к выдаче', 'Завершена'] %}
+                    {% for status in statuses %}
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="timeline-step">
+                            {% if status == r.request_status %}
+                            <div class="step-active">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            {% elif statuses.index(status) < statuses.index(r.request_status) %}
+                            <div class="step-completed">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            {% else %}
+                            <div class="step-pending">
+                                <i class="bi bi-circle"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="ms-3">
+                            <strong>{{ status }}</strong>
+                            {% if status == r.request_status %}
+                            <div class="text-success"><small>Текущий статус</small></div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Контактная информация -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <i class="bi bi-telephone"></i> Контакты для связи
+            </div>
+            <div class="card-body">
+                <p><strong>Телефон сервисной службы:</strong><br>
+                <a href="tel:+78001234567">8 (800) 123-45-67</a></p>
+                
+                <p><strong>Электронная почта:</strong><br>
+                <a href="mailto:service@climate-service.ru">service@climate-service.ru</a></p>
+                
+                <p><strong>Часы работы:</strong><br>
+                Пн-Пт: 9:00-18:00<br>
+                Сб: 10:00-16:00</p>
+                
+                <div class="alert alert-warning mt-3">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <small>Если у вас есть срочный вопрос, позвоните по указанному телефону.</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- QR код обратной связи -->
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <i class="bi bi-qr-code"></i> Обратная связь
+            </div>
+            <div class="card-body text-center">
+                <p>Оцените качество обслуживания:</p>
+                <img src="{{ url_for('qr_feedback') }}" alt="QR Code" class="img-fluid rounded" style="max-width: 150px;">
+                <p class="mt-2 text-muted">
+                    <small>Отсканируйте QR-код после завершения работ</small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.status-timeline {
+    position: relative;
+}
+
+.timeline-step {
+    position: relative;
+    width: 30px;
+    height: 30px;
+}
+
+.step-active {
+    width: 30px;
+    height: 30px;
+    background: #0d6efd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.step-completed {
+    width: 30px;
+    height: 30px;
+    background: #198754;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.step-pending {
+    width: 30px;
+    height: 30px;
+    background: #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+}
+</style>
+{% endblock %}

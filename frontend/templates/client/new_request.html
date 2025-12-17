@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block header %}Создание новой заявки{% endblock %}
+
+{% block actions %}
+    <a href="{{ url_for('my_requests') }}" class="btn btn-outline-light">
+        <i class="bi bi-arrow-left me-1"></i> Назад к моим заявкам
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-plus-circle"></i> Новая заявка на ремонт
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Дата обращения <span class="text-danger">*</span></label>
+                            <input type="date" name="start_date" class="form-control" required 
+                                   value="{{ today }}" readonly>
+                            <small class="text-muted">Дата автоматически устанавливается сегодняшней</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Тип оборудования <span class="text-danger">*</span></label>
+                            <select name="climate_tech_type" class="form-select" required>
+                                <option value="">Выберите тип...</option>
+                                <option value="Кондиционер">Кондиционер</option>
+                                <option value="Вентиляция">Вентиляционная система</option>
+                                <option value="Отопление">Отопительная система</option>
+                                <option value="Увлажнитель">Увлажнитель воздуха</option>
+                                <option value="Очиститель">Очиститель воздуха</option>
+                                <option value="Тепловая завеса">Тепловая завеса</option>
+                                <option value="Другое">Другое оборудование</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Модель устройства <span class="text-danger">*</span></label>
+                        <input type="text" name="climate_tech_model" class="form-control" required 
+                               placeholder="Например: Samsung AR9500M или Panasonic CS-E7RKDW">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Описание проблемы <span class="text-danger">*</span></label>
+                        <textarea name="problem_description" class="form-control" rows="5" required
+                                  placeholder="Опишите подробно проблему с оборудованием..."
+                                  minlength="10" maxlength="1000"></textarea>
+                        <div class="form-text">
+                            Опишите максимально подробно: что происходит, когда началось, какие признаки неисправности.
+                            Чем подробнее описание, тем быстрее специалист определит проблему.
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        После создания заявки с вами свяжется оператор для уточнения деталей. 
+                        Статус заявки можно отслеживать в разделе "Мои заявки".
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle me-2"></i> Отправить заявку
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i> Очистить форму
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-warning text-dark">
+                <i class="bi bi-lightbulb"></i> Советы по заполнению заявки
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Укажите точную модель оборудования (часто указана на шильдике или в документах)</li>
+                    <li>Опишите симптомы проблемы: "не включается", "не охлаждает", "шумит", "течёт"</li>
+                    <li>Укажите, когда началась проблема и при каких условиях проявляется</li>
+                    <li>Если есть возможность, приложите фото или видео проблемы к телефонному звонку</li>
+                    <li>Укажите удобное время для визита специалиста (в комментариях оператору)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

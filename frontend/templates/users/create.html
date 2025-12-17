@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block header %}Создание нового пользователя{% endblock %}
+
+{% block actions %}
+    <a href="{{ url_for('users_list') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Назад к списку
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-person-plus"></i> Регистрация нового пользователя
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">ФИО <span class="text-danger">*</span></label>
+                        <input type="text" name="fio" class="form-control" required
+                               placeholder="Иванов Иван Иванович">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Телефон <span class="text-danger">*</span></label>
+                        <input type="tel" name="phone" class="form-control" required
+                               placeholder="+7 (999) 123-45-67">
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Логин <span class="text-danger">*</span></label>
+                            <input type="text" name="login" class="form-control" required
+                                   placeholder="ivanov">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Пароль <span class="text-danger">*</span></label>
+                            <input type="password" name="password" class="form-control" required
+                                   placeholder="Минимум 6 символов">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Роль пользователя <span class="text-danger">*</span></label>
+                        <select name="user_type" class="form-select" required>
+                            <option value="">Выберите роль...</option>
+                            <option value="Заказчик">Заказчик</option>
+                            <option value="Оператор">Оператор</option>
+                            <option value="Специалист">Специалист</option>
+                            <option value="Менеджер">Менеджер</option>
+                            <option value="Менеджер по качеству">Менеджер по качеству</option>
+                        </select>
+                        <div class="form-text">
+                            <small>
+                                • <strong>Заказчик</strong> - может создавать и отслеживать свои заявки<br>
+                                • <strong>Оператор</strong> - принимает и регистрирует заявки<br>
+                                • <strong>Специалист</strong> - выполняет ремонтные работы<br>
+                                • <strong>Менеджер</strong> - управление пользователями и заявками<br>
+                                • <strong>Менеджер по качеству</strong> - контроль качества работы
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        После создания пользователь сможет войти в систему 
+                        используя указанный логин и пароль.
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-check"></i> Создать пользователя
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Очистить форму
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
