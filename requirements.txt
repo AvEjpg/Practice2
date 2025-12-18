@@ -1,10 +1,20 @@
-fastapi
-uvicorn
-sqlalchemy
-psycopg2
-pydantic
-python-jose[cryptography]
-passlib[bcrypt]
-httpx
-qrcode
-Pillow
+# Backend dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+pydantic==2.5.0
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Frontend dependencies
+flask==3.0.0
+jinja2==3.1.2
+httpx==0.25.1
+
+# QR code generation
+qrcode[pil]==7.4.2
+pillow==10.1.0
+
+# Development
+python-dotenv==1.0.0
