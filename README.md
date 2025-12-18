@@ -5,28 +5,27 @@
 ## 📁 Структура проекта
 
 ```
-climate-service/
-├── backend/                    # FastAPI бэкенд
-│   ├── auth.py                # Аутентификация и авторизация
-│   ├── crud.py                # CRUD операции с БД
-│   ├── database.py            # Настройки подключения к БД
-│   ├── main.py                # Основной файл FastAPI
-│   ├── models.py              # SQLAlchemy модели
-│   ├── schemas.py             # Pydantic схемы
-│   ├── routers/               # Маршруты API
-│   │   ├── auth.py           # Аутентификация
-│   │   ├── client.py         # API для клиентов
-│   │   ├── comments.py       # Комментарии
-│   │   ├── qr.py             # Генерация QR-кодов
-│   │   ├── requests.py       # Заявки
-│   │   └── users.py          # Пользователи
-│   └── requirements.txt       # Зависимости бэкенда
+Practice2/
+├── requirements.txt           # Все зависимости проекта
+├── backend/                   # FastAPI бэкенд
+│   ├── auth.py               # Аутентификация и авторизация
+│   ├── crud.py               # CRUD операции с БД
+│   ├── database.py           # Настройки подключения к БД
+│   ├── main.py               # Основной файл FastAPI
+│   ├── models.py             # SQLAlchemy модели
+│   ├── schemas.py            # Pydantic схемы
+│   └── routers/              # Маршруты API
+│       ├── auth.py          # Аутентификация
+│       ├── client.py        # API для клиентов
+│       ├── comments.py      # Комментарии
+│       ├── qr.py            # Генерация QR-кодов
+│       ├── requests.py      # Заявки
+│       └── users.py         # Пользователи
 │
-├── frontend/                  # Flask фронтенд
-│   ├── app.py                # Основное Flask приложение
-│   ├── requirements.txt      # Зависимости фронтенда
+├── frontend/                 # Flask фронтенд
+│   ├── app.py               # Основное Flask приложение
 │   ├── static/              # Статические файлы
-│   │   └── custom.js        # JavaScript
+│   │   └── custom.js       # JavaScript
 │   └── templates/           # HTML шаблоны
 │       ├── auth/           # Страницы авторизации
 │       ├── client/         # Интерфейс заказчика
@@ -38,9 +37,7 @@ climate-service/
 │       ├── index.html      # Главная страница
 │       └── statistics.html # Статистика
 │
-├── database/                 # Скрипты БД
-├── docs/                    # Документация
-└── README.md               # Этот файл
+└── README.md                # Этот файл
 ```
 
 ## 🚀 Быстрый старт
@@ -50,11 +47,19 @@ climate-service/
 ```bash
 # Клонирование репозитория
 git clone <repository-url>
-cd climate-service
+cd Practice2
 
-# Установка Python зависимостей
-pip install -r backend/requirements.txt
-pip install -r frontend/requirements.txt
+# Создание виртуального окружения (опционально)
+python -m venv venv
+
+# Активация виртуального окружения
+# Windows:
+venv\Scripts\activate
+# Linux/Mac:
+source venv/bin/activate
+
+# Установка зависимостей
+pip install -r requirements.txt
 ```
 
 ### 2. Настройка базы данных
@@ -69,7 +74,7 @@ CREATE DATABASE climate_service;
 
 ### 3. Конфигурация
 
-Отредактируйте `backend/database.py`:
+Убедитесь, что строка подключения в `backend/database.py` соответствует вашей настройке PostgreSQL:
 ```python
 DATABASE_URL = "postgresql://postgres:123@localhost:5432/climate_service"
 ```
@@ -79,7 +84,7 @@ DATABASE_URL = "postgresql://postgres:123@localhost:5432/climate_service"
 ```bash
 # В первом терминале - запуск бэкенда
 cd backend
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uvicorn main:app --reload
 
 # Во втором терминале - запуск фронтенда
 cd frontend
@@ -100,7 +105,7 @@ python app.py
 | login2 | pass2 | Специалист |
 | login4 | pass4 | Оператор |
 | login6 | pass6 | Заказчик |
-| login8 | pass8 | Менеджер по качеству |
+
 
 ## 🔧 Технологии
 
@@ -126,5 +131,3 @@ python app.py
 4. Логи приложения в консоли
 
 ---
-
-*Проект разработан для автоматизации учета заявок на ремонт климатического оборудования*
